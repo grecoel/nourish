@@ -1,23 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  portfolioFor,
-  priorityFrontier,
-  rankDivergence,
-  type District,
-} from "./scenarioEngine";
-import {
-  factualAnswer,
-  retrieve,
-  type AskContext,
-  type PolicyChunk,
-} from "./askNourish";
+import { rankDivergence, type District } from "./scenarioEngine";
 import { IndonesiaMap } from "./IndonesiaMap";
-import { DistrictRankChart, PortfolioCharts } from "./AnalyticsCharts";
+import { DistrictRankChart } from "./AnalyticsCharts";
 import { ExperienceProvider, useExperience } from "./ExperienceContext";
 import { ScenarioWorkspace } from "./ScenarioWorkspace";
 import { AskWorkspace } from "./AskWorkspace";
 
 type Lens = "severity" | "scale";
+type DistrictCategory =
+  | "All priority patterns"
+  | "Severity-led"
+  | "Reach-led"
+  | "High on both"
+  | "Other ranked";
+const observedYears = ["2018", "2019", "2020", "2021", "2022", "2023", "2025"];
 const fmt = new Intl.NumberFormat("en-US");
 const number = (value: number | null) =>
   value === null ? "Not available" : fmt.format(Math.round(value));
@@ -26,6 +22,15 @@ const percent = (value: number | null) =>
 const rank = (value: number | null) => (value === null ? "—" : `#${value}`);
 const isRanked = (district: District) =>
   district.severityRank !== null && district.scaleRank !== null;
+
+function priorityCategory(district: District): Exclude<DistrictCategory, "All priority patterns"> {
+  const severity = district.severityRank!;
+  const reach = district.scaleRank!;
+  if (severity <= 100 && reach <= 100) return "High on both";
+  if (severity <= 100 && reach - severity >= 100) return "Severity-led";
+  if (reach <= 100 && severity - reach >= 100) return "Reach-led";
+  return "Other ranked";
+}
 
 function navigate(path: string) {
   window.history.pushState({}, "", path);
@@ -66,7 +71,7 @@ function Shell({
       <header>
         <button className="brand" onClick={() => navigate("/")}>
           <span>NOURISH</span>
-          <small>Food Security Priority Planner</small>
+          <small>SDG 2 Zero Hunger · Indonesia deep dive · ASEAN framework</small>
         </button>
         <nav>
           {nav.map((item) => (
@@ -143,6 +148,9 @@ function Atlas({ districts }: { districts: District[] }) {
   const setLens = (next: Lens) => update({ activeLens: next });
   const [query, setQuery] = useState("");
   const [province, setProvince] = useState("All provinces");
+  const [year, setYear] = useState("2025");
+  const [category, setCategory] =
+    useState<DistrictCategory>("All priority patterns");
   const selected = state.selectedDistrictId;
   const setSelected = (id: string) => update({ selectedDistrictId: id });
   const valid = useMemo(
@@ -155,6 +163,18 @@ function Atlas({ districts }: { districts: District[] }) {
     () =>
       valid
         .filter((d) => province === "All provinces" || d.province === province)
+        .filter(
+          (d) =>
+            category === "All priority patterns" ||
+            priorityCategory(d) === category,
+        )
+        .filter((d) =>
+          year === "2025"
+            ? true
+            : lens === "severity"
+              ? d.severityTop15Years?.includes(year)
+              : d.scaleTop15Years?.includes(year),
+        )
         .filter((d) =>
           `${d.name} ${d.province}`.toLowerCase().includes(query.toLowerCase()),
         )
@@ -163,7 +183,7 @@ function Atlas({ districts }: { districts: District[] }) {
             ? a.severityRank! - b.severityRank!
             : a.scaleRank! - b.scaleRank!,
         ),
-    [valid, lens, query, province],
+    [valid, lens, query, province, category, year],
   );
   const selectedDistrict = districts.find(
     (district) => district.id === selected,
@@ -177,7 +197,7 @@ function Atlas({ districts }: { districts: District[] }) {
             <p>
               The planning objective changes which places rise to the top.{" "}
               <small>
-                {divergence.validDistricts} valid districts · Indonesia · 2025
+                {divergence.validDistricts} valid districts · Indonesia · {year}
               </small>
             </p>
           </div>
@@ -220,7 +240,28 @@ function Atlas({ districts }: { districts: District[] }) {
               <small>Absolute affected population</small>
             </button>
           </div>
-          <div className="filters">
+          <div className="filters" aria-label="Atlas controls">
+            <label className="filter-label">
+              <span>Observation year</span>
+              <select value={year} onChange={(e) => setYear(e.target.value)}>
+                {observedYears.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-label category-filter">
+              <span>Priority pattern</span>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as DistrictCategory)}
+              >
+                <option>All priority patterns</option>
+                <option>Severity-led</option>
+                <option>Reach-led</option>
+                <option>High on both</option>
+                <option>Other ranked</option>
+              </select>
+            </label>
             <input
               value={query}
               onChange={(e) => {
@@ -235,17 +276,25 @@ function Atlas({ districts }: { districts: District[] }) {
               }}
               placeholder="Find and focus a district"
             />
-            <select
-              value={province}
-              onChange={(e) => setProvince(e.target.value)}
-            >
-              <option>All provinces</option>
-              {provinces.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
+            <label className="filter-label">
+              <span>Province</span>
+              <select
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+              >
+                <option>All provinces</option>
+                {provinces.map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
           </div>
         </section>
+        <p className="atlas-control-note">
+          {year === "2025"
+            ? "2025 shows the full national ranking. Categories are derived from the visible Severity and Reach ranks."
+            : `${year} filters districts recorded in the Top-15 for the selected lens. Current map colours and ranks remain the validated 2025 reference; historical rank values are not inferred.`}
+        </p>
         <section className="atlas-workspace">
           <IndonesiaMap
             districts={districts}
@@ -256,7 +305,7 @@ function Atlas({ districts }: { districts: District[] }) {
           />
           <section className="table-wrap">
             <div className="table-caption">
-              <span>Highest-ranked matches</span>
+              <span>{year === "2025" ? "Highest-ranked matches" : `Recorded Top-15 districts · ${year}`}</span>
               <span>
                 National rank ·{" "}
                 {lens === "severity" ? "PoU" : "Affected population"}
@@ -370,303 +419,6 @@ function Atlas({ districts }: { districts: District[] }) {
             )}
           </section>
         </section>
-      </main>
-    </Shell>
-  );
-}
-function AskPanel({ context }: { context: AskContext }) {
-  const [corpus, setCorpus] = useState<PolicyChunk[]>([]);
-  const [question, setQuestion] = useState("Why is this district selected?");
-  const [asked, setAsked] = useState(false);
-  useEffect(() => {
-    fetch("/policy-index.json")
-      .then((r) => r.json())
-      .then(setCorpus);
-  }, []);
-  const sources = asked ? retrieve(question, corpus) : [];
-  return (
-    <section className="ask-panel">
-      <p className="eyebrow">ASK NOURISH</p>
-      <h2>Explain the data. Trace the evidence.</h2>
-      <p className="context">
-        {context.portfolio
-          ? `Severity ${Math.round(context.portfolio.severityWeight * 100)}% / Reach ${Math.round(context.portfolio.reachWeight * 100)}% · ${context.portfolio.capacity} districts`
-          : "Atlas context"}
-      </p>
-      <div className="chips">
-        {[
-          "Why did this district rise?",
-          "What changed from Severity First to Reach First?",
-          "Why is this district selected?",
-          "What policy evidence is relevant here?",
-          "What can the data NOT tell us?",
-        ].map((chip) => (
-          <button
-            key={chip}
-            onClick={() => {
-              setQuestion(chip);
-              setAsked(true);
-            }}
-          >
-            {chip}
-          </button>
-        ))}
-      </div>
-      <div className="ask-input">
-        <input
-          value={question}
-          onChange={(event) => setQuestion(event.target.value)}
-        />
-        <button className="primary" onClick={() => setAsked(true)}>
-          Explain
-        </button>
-      </div>
-      {asked && (
-        <div className="answer">
-          <h3>Answer</h3>
-          <p>{factualAnswer(question, context)}</p>
-          <h3>Policy evidence</h3>
-          {sources.length ? (
-            sources.map((source) => (
-              <article className="source" key={source.id}>
-                <strong>{source.sourceTitle}</strong>
-                <small>
-                  Page {source.page ?? "not available"} · curated local source
-                </small>
-                <p>{source.text.slice(0, 260)}…</p>
-              </article>
-            ))
-          ) : (
-            <p>
-              No directly matching curated policy passage was retrieved.
-              Generated synthesis is unavailable because no provider is
-              configured; the factual explanation above is deterministic.
-            </p>
-          )}
-          <small className="caveat">
-            Sources are retrieved from local curated documents only. NOURISH
-            does not determine the portfolio or claim causal effects.
-          </small>
-        </div>
-      )}
-    </section>
-  );
-}
-function Scenario({ districts }: { districts: District[] }) {
-  const { state, update } = useExperience();
-  const weight = state.severityWeight;
-  const capacity = state.capacity;
-  const setWeight = (value: number) => update({ severityWeight: value });
-  const setCapacity = (value: number) => update({ capacity: value });
-  const [pinned, setPinned] = useState<ReturnType<typeof portfolioFor> | null>(
-    null,
-  );
-  const [showAsk, setShowAsk] = useState(false);
-  const portfolio = useMemo(
-    () => portfolioFor(districts, weight, capacity),
-    [districts, weight, capacity],
-  );
-  const frontier = useMemo(
-    () => priorityFrontier(districts, capacity),
-    [districts, capacity],
-  );
-  const onlyCurrent = pinned
-    ? portfolio.districts.filter(
-        (district) => !pinned.districts.some((item) => item.id === district.id),
-      )
-    : [];
-  const selectedDistrict =
-    districts.find((district) => district.id === state.selectedDistrictId) ??
-    portfolio.districts[0];
-  return (
-    <Shell active="Scenario Lab">
-      <main>
-        <section className="intro">
-          <div>
-            <p className="eyebrow">DECISION EXPLORER · 2025</p>
-            <h1>Scenario Lab</h1>
-            <p>
-              Set a transparent planning objective. The portfolio changes live;
-              NOURISH never chooses it for you.
-            </p>
-          </div>
-          <button className="primary" onClick={() => setShowAsk(!showAsk)}>
-            Ask NOURISH
-          </button>
-        </section>
-        {showAsk && (
-          <AskPanel
-            context={{
-              page: "scenario",
-              portfolio,
-              comparison: pinned ?? undefined,
-              selectedDistrict,
-            }}
-          />
-        )}
-        <section className="scenario-controls">
-          <div>
-            <label>
-              Priority capacity: <strong>{capacity} districts</strong>
-            </label>
-            <input
-              type="range"
-              min="5"
-              max="50"
-              value={capacity}
-              onChange={(e) => setCapacity(Number(e.target.value))}
-            />
-          </div>
-          <div>
-            <label>
-              Severity <strong>{Math.round(weight * 100)}%</strong>{" "}
-              <span>↔</span> Reach{" "}
-              <strong>{Math.round((1 - weight) * 100)}%</strong>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={weight * 100}
-              onChange={(e) => setWeight(Number(e.target.value) / 100)}
-            />
-            <div className="presets">
-              {[
-                ["Severity First", 0.8],
-                ["Balanced", 0.5],
-                ["Reach First", 0.2],
-              ].map(([label, value]) => (
-                <button
-                  key={String(label)}
-                  className={weight === value ? "selected" : ""}
-                  onClick={() => setWeight(value as number)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-        <section className="scenario-map-block">
-          <div className="section-heading">
-            <div>
-              <h2>Selected portfolio geography</h2>
-              <p>
-                Click a district to inspect it without leaving this scenario.
-              </p>
-            </div>
-            {selectedDistrict && (
-              <button
-                className="secondary"
-                onClick={() => navigate(`/district/${selectedDistrict.id}`)}
-              >
-                Open {selectedDistrict.name}
-              </button>
-            )}
-          </div>
-          <IndonesiaMap
-            districts={districts}
-            lens="severity"
-            selected={selectedDistrict?.id}
-            onSelect={(id) => update({ selectedDistrictId: id })}
-            portfolio={
-              new Set(portfolio.districts.map((district) => district.id))
-            }
-          />
-        </section>
-        <section className="scenario-summary">
-          <div>
-            <span>Affected population represented</span>
-            <strong>{number(portfolio.affectedPopulation)}</strong>
-          </div>
-          <div>
-            <span>Average PoU</span>
-            <strong>{percent(portfolio.averagePou)}</strong>
-          </div>
-          <div>
-            <span>Median PoU</span>
-            <strong>{percent(portfolio.medianPou)}</strong>
-          </div>
-          <div>
-            <span>Provinces represented</span>
-            <strong>{portfolio.provinceCount}</strong>
-          </div>
-          <div>
-            <span>Persistent-priority districts</span>
-            <strong>{portfolio.persistentPriorityCount}</strong>
-          </div>
-        </section>
-        <PortfolioCharts portfolio={portfolio} />
-        <section className="scenario-grid">
-          <section className="portfolio">
-            <div className="table-caption">
-              <span>Current portfolio</span>
-              <button onClick={() => setPinned(portfolio)}>
-                Pin for comparison
-              </button>
-            </div>
-            {portfolio.districts.map((district, index) => (
-              <button
-                className={`portfolio-row ${selectedDistrict?.id === district.id ? "row-selected" : ""}`}
-                onClick={() => update({ selectedDistrictId: district.id })}
-                key={district.id}
-              >
-                <span>#{index + 1}</span>
-                <strong>{district.name}</strong>
-                <small>
-                  {district.province} · {percent(district.pouPct)} ·{" "}
-                  {number(district.undernourishedPeople)}
-                </small>
-                <em>
-                  S #{district.severityRank} / R #{district.scaleRank}
-                </em>
-              </button>
-            ))}
-          </section>
-          <section className="frontier">
-            <p className="eyebrow">PRIORITY FRONTIER</p>
-            <h2>Efficient trade-off scenarios</h2>
-            <p>
-              Each point is a distinct portfolio from a 0–100% severity weight
-              sweep.
-            </p>
-            <div className="frontier-plot">
-              {frontier.map((point) => (
-                <button
-                  title={`Severity ${Math.round(point.severityWeight * 100)}%, affected ${number(point.affectedPopulation)}, average PoU ${percent(point.averagePou)}`}
-                  className={point.efficient ? "efficient" : ""}
-                  style={{
-                    left: `${8 + (84 * (point.affectedPopulation - Math.min(...frontier.map((x) => x.affectedPopulation)))) / (Math.max(...frontier.map((x) => x.affectedPopulation)) - Math.min(...frontier.map((x) => x.affectedPopulation)) || 1)}%`,
-                    bottom: `${8 + (78 * (point.averagePou - Math.min(...frontier.map((x) => x.averagePou)))) / (Math.max(...frontier.map((x) => x.averagePou)) - Math.min(...frontier.map((x) => x.averagePou)) || 1)}%`,
-                  }}
-                  onClick={() => setWeight(point.severityWeight)}
-                  key={point.key}
-                />
-              ))}
-            </div>
-            <small>Click a point to apply its weight split.</small>
-          </section>
-        </section>
-        {pinned && (
-          <section className="comparison">
-            <p className="eyebrow">SCENARIO COMPARISON</p>
-            <h2>Current vs pinned scenario</h2>
-            <p>
-              Current-only entries:{" "}
-              {onlyCurrent
-                .slice(0, 8)
-                .map((d) => d.name)
-                .join(", ") || "none"}
-              .
-            </p>
-            <p>
-              Pinned: Severity {Math.round(pinned.severityWeight * 100)}% /
-              Reach {Math.round(pinned.reachWeight * 100)}% ·{" "}
-              {number(pinned.affectedPopulation)} affected population
-              represented · average PoU {percent(pinned.averagePou)}.
-            </p>
-          </section>
-        )}
       </main>
     </Shell>
   );

@@ -59,6 +59,7 @@ export function IndonesiaMap({
   const [mapError, setMapError] = useState(false);
   const [hover, setHover] = useState<Hover>(null);
   const [zoom, setZoom] = useState(1);
+  const mapLoading = features.length === 0 && !mapError;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,7 +140,7 @@ export function IndonesiaMap({
   const hoverValue = (district: District) => {
     if (lens === "severity") {
       return district.pouPct === null
-        ? "PoU not available"
+        ? "Unranked: official 2025 PoU observation unavailable"
         : `${district.pouPct.toFixed(2)}% PoU`;
     }
     if (lens === "scale") {
@@ -193,6 +194,11 @@ export function IndonesiaMap({
         <div className="map-error" role="status">
           District boundaries could not be loaded. Rankings remain available in
           the adjacent list.
+        </div>
+      )}
+      {mapLoading && (
+        <div className="map-loading" role="status" aria-live="polite">
+          <i aria-hidden="true" /> Loading district boundaries…
         </div>
       )}
       {hover && (

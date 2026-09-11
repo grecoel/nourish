@@ -3,7 +3,12 @@ import { factualAnswer, retrieve, type PolicyChunk } from "./askNourish";
 import { portfolioFor, type District } from "./scenarioEngine";
 import { useExperience } from "./ExperienceContext";
 
-type Turn = { question: string; answer: string; sources: PolicyChunk[] };
+type Turn = {
+  question: string;
+  answer: string;
+  dataBasis: string;
+  sources: PolicyChunk[];
+};
 export function AskWorkspace({
   districts,
   navigate,
@@ -21,6 +26,17 @@ export function AskWorkspace({
   const portfolio = useMemo(
     () => portfolioFor(districts, state.severityWeight, state.capacity),
     [districts, state.severityWeight, state.capacity],
+  );
+  const comparison = useMemo(
+    () =>
+      state.comparisonScenario
+        ? portfolioFor(
+            districts,
+            state.comparisonScenario.severityWeight,
+            state.comparisonScenario.capacity,
+          )
+        : undefined,
+    [districts, state.comparisonScenario],
   );
   const selected = districts.find((d) => d.id === state.selectedDistrictId);
   useEffect(() => {
@@ -48,13 +64,19 @@ export function AskWorkspace({
       activeLens: state.activeLens,
       selectedDistrict: selected,
       portfolio,
+      comparison,
     };
+    const sources = retrieve(clean, corpus);
+    const dataBasis = selected
+      ? `${selected.name}: Severity #${selected.severityRank ?? "—"}, Reach #${selected.scaleRank ?? "—"}, PoU ${selected.pouPct?.toFixed(2) ?? "not available"}%, and ${selected.undernourishedPeople?.toLocaleString() ?? "not available"} affected people. Current scenario: Severity ${Math.round(portfolio.severityWeight * 100)}% / Reach ${Math.round(portfolio.reachWeight * 100)}%, capacity ${portfolio.capacity}.`
+      : `Current scenario: Severity ${Math.round(portfolio.severityWeight * 100)}% / Reach ${Math.round(portfolio.reachWeight * 100)}%, capacity ${portfolio.capacity}, ${portfolio.affectedPopulation.toLocaleString()} affected people represented, and ${portfolio.averagePou.toFixed(2)}% average PoU.`;
     setTurns((current) => [
       ...current,
       {
         question: clean,
         answer: factualAnswer(clean, context),
-        sources: retrieve(clean, corpus),
+        dataBasis,
+        sources,
       },
     ]);
     setQuestion("");
@@ -63,6 +85,7 @@ export function AskWorkspace({
     ? [
         `Why does ${selected.name} rank differently?`,
         `Why is ${selected.name} selected?`,
+        ...(comparison ? ["What changed from the pinned reference?"] : []),
         `What can the data not tell us?`,
       ]
     : [
@@ -127,12 +150,30 @@ export function AskWorkspace({
                   <strong>{turn.question}</strong>
                 </div>
                 <div className="nourish-answer">
-                  <small>Verified answer</small>
+                  <small>Direct answer</small>
                   <p>{turn.answer}</p>
-                  <span>
-                    Verified deterministic response · optional generated
-                    synthesis is not active in this static prototype.
-                  </span>
+                  <div className="answer-structure">
+                    <div>
+                      <strong>Data basis</strong>
+                      <p>{turn.dataBasis}</p>
+                    </div>
+                    <div>
+                      <strong>Policy alignment</strong>
+                      <p>
+                        {turn.sources.length
+                          ? "Traceable curated policy passages are listed in the source panel."
+                          : "No directly matching curated policy passage was retrieved for this question."}
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Analytical caution</strong>
+                      <p>
+                        The evidence describes priorities and context; it does
+                        not prove causes, intervention effects, or the correct
+                        policy objective.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </article>
             ))

@@ -54,3 +54,15 @@ test('Ask NOURISH gives rank-specific facts and retrieves food-security evidence
   assert.equal(sources[0].sourceTitle, 'ASEAN Economic Community Strategic Plan 2026–2030');
   assert.equal(sources[0].page, 31);
 });
+
+test('Ask NOURISH distinguishes a pinned scenario comparison from the active portfolio', () => {
+  const reference = portfolioFor(districts, 0.8, 20);
+  const active = portfolioFor(districts, 0.2, 20);
+  const answer = factualAnswer('What changed from the pinned reference?', {
+    page: 'scenario',
+    portfolio: active,
+    comparison: reference,
+  });
+  assert.match(answer, /Compared with the pinned portfolio/);
+  assert.match(answer, /visible Severity–Reach weights/);
+});
