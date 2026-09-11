@@ -13,6 +13,9 @@ export function AskWorkspace({
 }) {
   const { state } = useExperience(),
     [corpus, setCorpus] = useState<PolicyChunk[]>([]),
+    [corpusStatus, setCorpusStatus] = useState<
+      "loading" | "ready" | "error"
+    >("loading"),
     [question, setQuestion] = useState(""),
     [turns, setTurns] = useState<Turn[]>([]);
   const portfolio = useMemo(
@@ -21,9 +24,21 @@ export function AskWorkspace({
   );
   const selected = districts.find((d) => d.id === state.selectedDistrictId);
   useEffect(() => {
-    fetch("/policy-index.json")
-      .then((r) => r.json())
-      .then(setCorpus);
+    const controller = new AbortController();
+    fetch("/policy-index.json", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Policy index could not be loaded");
+        return response.json();
+      })
+      .then((data) => {
+        setCorpus(data);
+        setCorpusStatus("ready");
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCorpusStatus("error");
+      });
+    return () => controller.abort();
   }, []);
   const ask = (text = question) => {
     const clean = text.trim();
@@ -72,7 +87,7 @@ export function AskWorkspace({
         </header>
         <div className="context-strip">
           <span>
-            Lens <b>{state.activeLens}</b>
+            Lens <b>{state.activeLens === "severity" ? "Severity" : "Reach"}</b>
           </span>
           <span>
             Scenario{" "}
@@ -115,8 +130,8 @@ export function AskWorkspace({
                   <small>Verified answer</small>
                   <p>{turn.answer}</p>
                   <span>
-                    Grounded synthesis unavailable — showing verified data and
-                    retrieved evidence.
+                    Verified deterministic response · optional generated
+                    synthesis is not active in this static prototype.
                   </span>
                 </div>
               </article>
@@ -133,8 +148,11 @@ export function AskWorkspace({
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask about the current decision…"
+            aria-label="Question for Ask NOURISH"
           />
-          <button className="primary">Ask</button>
+          <button className="primary" disabled={!question.trim()}>
+            Ask
+          </button>
         </form>
       </section>
       <aside className="evidence-panel">
@@ -181,14 +199,23 @@ export function AskWorkspace({
               <details key={source.id}>
                 <summary>
                   <strong>{source.sourceTitle}</strong>
-                  <span>Page {source.page}</span>
+                  <span>Page {source.page ?? "not available"}</span>
                 </summary>
                 <p>{source.text}</p>
               </details>
             ))
+          ) : turns.length === 0 ? (
+            <p className="source-empty">
+              {corpusStatus === "loading"
+                ? "Loading the curated policy index…"
+                : corpusStatus === "error"
+                  ? "The curated policy index could not be loaded. Verified application facts remain available."
+                  : "Sources appear after a question is asked."}
+            </p>
           ) : (
             <p className="source-empty">
-              Sources appear after a question is asked.
+              No directly matching passage was found in the curated policy
+              index for this question.
             </p>
           )}
         </section>

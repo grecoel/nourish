@@ -49,6 +49,14 @@ export function ScenarioWorkspace({
     maxX = Math.max(...frontier.map((p) => p.affectedPopulation)),
     minY = Math.min(...frontier.map((p) => p.averagePou)),
     maxY = Math.max(...frontier.map((p) => p.averagePou));
+  const currentIsSwept = frontier.some(
+    (point) =>
+      Math.abs(point.severityWeight - state.severityWeight) < 0.001,
+  );
+  const plotX = (affectedPopulation: number) =>
+    55 + ((affectedPopulation - minX) / (maxX - minX || 1)) * 560;
+  const plotY = (averagePou: number) =>
+    140 - ((averagePou - minY) / (maxY - minY || 1)) * 125;
   const apply = () => {
     update({ capacity: draftCapacity, severityWeight: draftSeverity / 100 });
     setConfigure(false);
@@ -108,7 +116,8 @@ export function ScenarioWorkspace({
           <span>Coverage</span>
           <strong>{portfolio.provinceCount} provinces</strong>
           <small>
-            {portfolio.persistentPriorityCount} persistent priorities
+            {portfolio.persistentPriorityCount} previously Top-15 under either
+            lens
           </small>
         </article>
       </section>
@@ -163,7 +172,12 @@ export function ScenarioWorkspace({
           </div>
           <div className="portfolio-action">
             <span>
-              Selected: <b>{selected.name}</b>
+              Focused: <b>{selected.name}</b>{" "}
+              <small>
+                {portfolio.districts.some((district) => district.id === selected.id)
+                  ? "Inside portfolio"
+                  : "Outside portfolio"}
+              </small>
             </span>
             <button onClick={() => navigate(`/district/${selected.id}`)}>
               Open district →
@@ -190,12 +204,8 @@ export function ScenarioWorkspace({
             <line x1="55" y1="140" x2="615" y2="140" />
             <line x1="55" y1="15" x2="55" y2="140" />
             {frontier.map((point) => {
-              const x =
-                  55 +
-                  ((point.affectedPopulation - minX) / (maxX - minX || 1)) *
-                    560,
-                y =
-                  140 - ((point.averagePou - minY) / (maxY - minY || 1)) * 125,
+              const x = plotX(point.affectedPopulation),
+                y = plotY(point.averagePou),
                 active =
                   Math.abs(point.severityWeight - state.severityWeight) < 0.001;
               return (
@@ -220,6 +230,21 @@ export function ScenarioWorkspace({
                 </circle>
               );
             })}
+            {!currentIsSwept && (
+              <circle
+                cx={plotX(portfolio.affectedPopulation)}
+                cy={plotY(portfolio.averagePou)}
+                r="6"
+                className="active"
+              >
+                <title>
+                  Current: Severity {Math.round(portfolio.severityWeight * 100)}%
+                  {" / "}Reach {Math.round(portfolio.reachWeight * 100)}% ·{" "}
+                  {compact(portfolio.affectedPopulation)} affected ·{" "}
+                  {pct(portfolio.averagePou)} average PoU
+                </title>
+              </circle>
+            )}
             <text x="250" y="168">
               Affected population represented →
             </text>
