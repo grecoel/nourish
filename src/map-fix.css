@@ -1,0 +1,9 @@
+.indo-map path:focus {
+  outline: none;
+}
+
+.indo-map path:focus-visible {
+  outline: none;
+  stroke: #17212b;
+  stroke-width: 1.5;
+}

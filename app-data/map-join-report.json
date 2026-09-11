@@ -1,0 +1,10 @@
+{
+  "geometryFeatures": 514,
+  "applicationDistricts": 514,
+  "matchedCodes": 514,
+  "unmatchedGeometryCodes": [],
+  "unmatchedApplicationCodes": [],
+  "duplicateGeometryCodes": [],
+  "joinField": "feature.properties.code with periods removed, matched to district.code",
+  "status": "pass"
+}
