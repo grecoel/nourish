@@ -7,6 +7,13 @@ import { ScenarioWorkspace } from "./ScenarioWorkspace";
 import { AskWorkspace } from "./AskWorkspace";
 
 type Lens = "severity" | "scale";
+type DistrictCategory =
+  | "All priority patterns"
+  | "Severity-led"
+  | "Reach-led"
+  | "High on both"
+  | "Other ranked";
+const observedYears = ["2018", "2019", "2020", "2021", "2022", "2023", "2025"];
 const fmt = new Intl.NumberFormat("en-US");
 const number = (value: number | null) =>
   value === null ? "Not available" : fmt.format(Math.round(value));
@@ -15,6 +22,15 @@ const percent = (value: number | null) =>
 const rank = (value: number | null) => (value === null ? "—" : `#${value}`);
 const isRanked = (district: District) =>
   district.severityRank !== null && district.scaleRank !== null;
+
+function priorityCategory(district: District): Exclude<DistrictCategory, "All priority patterns"> {
+  const severity = district.severityRank!;
+  const reach = district.scaleRank!;
+  if (severity <= 100 && reach <= 100) return "High on both";
+  if (severity <= 100 && reach - severity >= 100) return "Severity-led";
+  if (reach <= 100 && severity - reach >= 100) return "Reach-led";
+  return "Other ranked";
+}
 
 function navigate(path: string) {
   window.history.pushState({}, "", path);
@@ -132,6 +148,9 @@ function Atlas({ districts }: { districts: District[] }) {
   const setLens = (next: Lens) => update({ activeLens: next });
   const [query, setQuery] = useState("");
   const [province, setProvince] = useState("All provinces");
+  const [year, setYear] = useState("2025");
+  const [category, setCategory] =
+    useState<DistrictCategory>("All priority patterns");
   const selected = state.selectedDistrictId;
   const setSelected = (id: string) => update({ selectedDistrictId: id });
   const valid = useMemo(
@@ -144,6 +163,18 @@ function Atlas({ districts }: { districts: District[] }) {
     () =>
       valid
         .filter((d) => province === "All provinces" || d.province === province)
+        .filter(
+          (d) =>
+            category === "All priority patterns" ||
+            priorityCategory(d) === category,
+        )
+        .filter((d) =>
+          year === "2025"
+            ? true
+            : lens === "severity"
+              ? d.severityTop15Years?.includes(year)
+              : d.scaleTop15Years?.includes(year),
+        )
         .filter((d) =>
           `${d.name} ${d.province}`.toLowerCase().includes(query.toLowerCase()),
         )
@@ -152,7 +183,7 @@ function Atlas({ districts }: { districts: District[] }) {
             ? a.severityRank! - b.severityRank!
             : a.scaleRank! - b.scaleRank!,
         ),
-    [valid, lens, query, province],
+    [valid, lens, query, province, category, year],
   );
   const selectedDistrict = districts.find(
     (district) => district.id === selected,
@@ -166,7 +197,7 @@ function Atlas({ districts }: { districts: District[] }) {
             <p>
               The planning objective changes which places rise to the top.{" "}
               <small>
-                {divergence.validDistricts} valid districts · Indonesia · 2025
+                {divergence.validDistricts} valid districts · Indonesia · {year}
               </small>
             </p>
           </div>
@@ -209,7 +240,28 @@ function Atlas({ districts }: { districts: District[] }) {
               <small>Absolute affected population</small>
             </button>
           </div>
-          <div className="filters">
+          <div className="filters" aria-label="Atlas controls">
+            <label className="filter-label">
+              <span>Observation year</span>
+              <select value={year} onChange={(e) => setYear(e.target.value)}>
+                {observedYears.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-label category-filter">
+              <span>Priority pattern</span>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as DistrictCategory)}
+              >
+                <option>All priority patterns</option>
+                <option>Severity-led</option>
+                <option>Reach-led</option>
+                <option>High on both</option>
+                <option>Other ranked</option>
+              </select>
+            </label>
             <input
               value={query}
               onChange={(e) => {
@@ -224,17 +276,25 @@ function Atlas({ districts }: { districts: District[] }) {
               }}
               placeholder="Find and focus a district"
             />
-            <select
-              value={province}
-              onChange={(e) => setProvince(e.target.value)}
-            >
-              <option>All provinces</option>
-              {provinces.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
+            <label className="filter-label">
+              <span>Province</span>
+              <select
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+              >
+                <option>All provinces</option>
+                {provinces.map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
           </div>
         </section>
+        <p className="atlas-control-note">
+          {year === "2025"
+            ? "2025 shows the full national ranking. Categories are derived from the visible Severity and Reach ranks."
+            : `${year} filters districts recorded in the Top-15 for the selected lens. Current map colours and ranks remain the validated 2025 reference; historical rank values are not inferred.`}
+        </p>
         <section className="atlas-workspace">
           <IndonesiaMap
             districts={districts}
@@ -245,7 +305,7 @@ function Atlas({ districts }: { districts: District[] }) {
           />
           <section className="table-wrap">
             <div className="table-caption">
-              <span>Highest-ranked matches</span>
+              <span>{year === "2025" ? "Highest-ranked matches" : `Recorded Top-15 districts · ${year}`}</span>
               <span>
                 National rank ·{" "}
                 {lens === "severity" ? "PoU" : "Affected population"}
