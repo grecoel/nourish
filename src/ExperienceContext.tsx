@@ -10,6 +10,7 @@ export type ExperienceState = {
   activeLens: "severity" | "scale";
   selectedDistrictId?: string;
   comparisonDistrictId?: string;
+  comparisonScenario?: { capacity: number; severityWeight: number };
   capacity: number;
   severityWeight: number;
 };
@@ -24,6 +25,21 @@ const initial: ExperienceState = {
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
+
+const restoreScenario = (value: unknown) => {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as { capacity?: number; severityWeight?: number };
+  if (
+    !Number.isFinite(candidate.capacity) ||
+    !Number.isFinite(candidate.severityWeight)
+  ) {
+    return undefined;
+  }
+  return {
+    capacity: clamp(Math.round(candidate.capacity!), 5, 50),
+    severityWeight: clamp(candidate.severityWeight!, 0, 1),
+  };
+};
 
 function restoreState(): ExperienceState {
   try {
@@ -43,6 +59,7 @@ function restoreState(): ExperienceState {
         typeof stored.comparisonDistrictId === "string"
           ? stored.comparisonDistrictId
           : initial.comparisonDistrictId,
+      comparisonScenario: restoreScenario(stored.comparisonScenario),
       capacity: clamp(
         Math.round(
           Number.isFinite(stored.capacity) ? stored.capacity! : initial.capacity,

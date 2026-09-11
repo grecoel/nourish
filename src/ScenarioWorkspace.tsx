@@ -31,6 +31,17 @@ export function ScenarioWorkspace({
     () => portfolioFor(districts, state.severityWeight, state.capacity),
     [districts, state.severityWeight, state.capacity],
   );
+  const comparison = useMemo(
+    () =>
+      state.comparisonScenario
+        ? portfolioFor(
+            districts,
+            state.comparisonScenario.severityWeight,
+            state.comparisonScenario.capacity,
+          )
+        : undefined,
+    [districts, state.comparisonScenario],
+  );
   const frontier = useMemo(
     () => priorityFrontier(districts, state.capacity),
     [districts, state.capacity],
@@ -57,12 +68,24 @@ export function ScenarioWorkspace({
     55 + ((affectedPopulation - minX) / (maxX - minX || 1)) * 560;
   const plotY = (averagePou: number) =>
     140 - ((averagePou - minY) / (maxY - minY || 1)) * 125;
+  const comparisonDelta = comparison
+    ? {
+        entered: portfolio.districts.filter(
+          (district) => !comparison.districts.some((item) => item.id === district.id),
+        ).length,
+        exited: comparison.districts.filter(
+          (district) => !portfolio.districts.some((item) => item.id === district.id),
+        ).length,
+        affected: portfolio.affectedPopulation - comparison.affectedPopulation,
+        averagePou: portfolio.averagePou - comparison.averagePou,
+      }
+    : undefined;
   const apply = () => {
     update({ capacity: draftCapacity, severityWeight: draftSeverity / 100 });
     setConfigure(false);
   };
   return (
-    <main className="scenario-v2">
+    <main className={`scenario-v2${comparison ? " has-comparison" : ""}`}>
       <section className="scenario-topbar">
         <div>
           <h1>Scenario Lab</h1>
@@ -91,6 +114,27 @@ export function ScenarioWorkspace({
           >
             Configure scenario
           </button>
+          <button
+            className="secondary"
+            onClick={() =>
+              update({
+                comparisonScenario: {
+                  capacity: state.capacity,
+                  severityWeight: state.severityWeight,
+                },
+              })
+            }
+          >
+            {comparison ? "Update reference" : "Pin reference"}
+          </button>
+          {comparison && (
+            <button
+              className="secondary"
+              onClick={() => update({ comparisonScenario: undefined })}
+            >
+              Clear reference
+            </button>
+          )}
           <button className="primary" onClick={() => navigate("/ask")}>
             Ask NOURISH
           </button>
@@ -121,6 +165,28 @@ export function ScenarioWorkspace({
           </small>
         </article>
       </section>
+      {comparison && comparisonDelta && (
+        <section className="scenario-delta" aria-live="polite">
+          <div>
+            <strong>Compared with pinned reference</strong>
+            <span>
+              Severity {Math.round(comparison.severityWeight * 100)}% / Reach{" "}
+              {Math.round(comparison.reachWeight * 100)}% · {comparison.capacity} districts
+            </span>
+          </div>
+          <span>
+            <b>{comparisonDelta.entered}</b> enter · <b>{comparisonDelta.exited}</b> exit
+          </span>
+          <span>
+            <b>{comparisonDelta.affected >= 0 ? "+" : ""}{compact(comparisonDelta.affected)}</b>{" "}
+            affected people represented
+          </span>
+          <span>
+            <b>{comparisonDelta.averagePou >= 0 ? "+" : ""}{comparisonDelta.averagePou.toFixed(1)} pp</b>{" "}
+            average PoU
+          </span>
+        </section>
+      )}
       <section className="scenario-main">
         <div className="scenario-map">
           <div className="panel-heading">
