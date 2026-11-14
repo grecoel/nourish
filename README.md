@@ -1,93 +1,52 @@
-# NOURISH
+# NOURISH 2.0 — Food Security Explorer
 
-NOURISH is an interactive food-security priority planning prototype for Indonesia. It helps users compare where undernourishment is most severe, where the largest affected population lives, and how a transparent change in planning priorities changes the selected district portfolio.
+Atlas ketahanan pangan Indonesia, snapshot 2025: **514 kabupaten/kota di 38 provinsi**.
 
-This is a competition prototype, not a production decision system. It does not estimate intervention impact, cost, or causality.
+## Menjalankan sendiri
 
-## What the prototype includes
+Node.js 20+ dan npm diperlukan. Dependensi yang sudah ada digunakan kembali; tidak ada library baru.
 
-- **Priority Atlas** — explore 514 Kabupaten/Kota using real district polygons and switch between Severity and Scale lenses.
-- **Scenario Lab** — set portfolio capacity and Severity/Reach weights, then inspect the resulting geography and trade-off.
-- **District Lens** — examine one district, compare it with a peer, and understand why its ranks differ.
-- **Ask NOURISH** — ask questions about the active district or scenario and trace answers to curated policy evidence.
-
-The selected district, active lens, and scenario settings persist as the user moves between pages.
-
-## Quick start
-
-Requirements: Node.js 20 or newer and npm.
-
-```bash
-git clone https://github.com/grecoel/nourish.git
-cd nourish
+```text
 npm ci
 npm run dev
 ```
 
-Open the local address printed by Vite, normally `http://localhost:5173`.
+Jika dependensi sudah terpasang, cukup `npm run dev`. Buka alamat yang ditampilkan Vite.
 
-The generated application datasets are committed, so partners do not need the private analysis workspace to run the prototype.
+Sesuai permintaan pemilik, server dan browser tidak dijalankan saat implementasi v2.
 
-## Validate a change
+## Tiga tingkat eksplorasi
 
-```bash
+1. **Atlas** — choropleth IKP/indikator inti, legenda dinamis, filter, pan/zoom, distribusi kelompok 1–6, peringkat IKP.
+2. **District Lens** — peta provinsi dengan wilayah fokus, dossier metrik, pembanding seprovinsi pada aligned dot plot.
+3. **Explore** — scatter PoU × jumlah terdampak, hubungan indikator × IKP, linked selection, korelasi Pearson, distribusi IKP box plot, tabel dan ekspor CSV.
+
+Style editorial ivory/forest mengikuti dua referensi pemilik di `docs/v2-reference/`. Desain dan batas implementasi dijelaskan di `docs/V2_IMPLEMENTATION.md`, termasuk what–why–how, expressiveness dan effectiveness.
+
+## Data
+
+Data browser disertakan pada `app-data/v2-districts.json` dan `app-data/v2-map.json`. Menjalankan aplikasi tidak membutuhkan sumber CSV privat, API key, server data, atau AI. Font Google opsional memiliki fallback lokal.
+
+- PoU/populasi/headcount valid: 503/514 wilayah; 11 Jambi tetap kosong.
+- IKP: 514/514. Peringkat memakai peringkat sumber nasional.
+- PPH: 513/514 setelah menahan konflik identitas Kota Jayapura; tidak diisi nol.
+- Energi/protein: 514/514.
+- Hanya snapshot 2025 dan indikator inti. Tidak ada skor prioritas gabungan, simulasi, rekomendasi, atau tren historis pada UI v2.
+- Peta bergabung 514/514 kode; geometri disederhanakan untuk tampilan, bukan batas hukum.
+
+`npm run data:v2` memperbarui data dari CSV lokal di folder analisis yang ditentukan pada `scripts/build-v2-data.py`; tidak diperlukan untuk penggunaan biasa. Sumber asli tidak diubah.
+
+## Pemeriksaan
+
+```text
 npm test
 npm run build
 ```
 
-The test suite protects district identity, the 503-district ranking universe, missing-value treatment, and deterministic rankings.
+Pemeriksaan TypeScript statis telah dilakukan. Runtime tests, build produksi, visual QA dan usability study belum dijalankan pada versi ini, mengikuti permintaan pemilik untuk menjalankan web sendiri.
 
-## Project structure
+Source lama competition tetap tersimpan sebagai arsip kode; `src/main.tsx` kini membuka `src/V2App.tsx`. README terdahulu disimpan pada `docs/LEGACY_README.md`.
 
-```text
-app-data/       Browser-ready district, map, and policy data
-app-tests/      Analytical invariant tests
-docs/           Method, data, map, Ask NOURISH, and run notes
-scripts/        Data preparation scripts
-server/         Optional external-language-model adapter
-src/            React interface and analytical logic
-```
+## Lisensi
 
-## Analytical model
-
-Severity ranks districts by descending Prevalence of Undernourishment (PoU). Scale ranks them by descending estimated undernourished population. Scenario Lab combines normalized national ranks:
-
-```text
-scenario score = severity weight × severity percentile
-               + reach weight × scale percentile
-```
-
-Reach weight is always `1 - severity weight`. Rankings are deterministic, ties use the stable district code, and missing observations are never imputed.
-
-For detailed assumptions, read:
-
-- [Prototype logic](docs/PROTOTYPE_LOGIC.md)
-- [Data notes](docs/DATA_NOTES.md)
-- [Map data and join QA](docs/MAP_DATA.md)
-- [Ask NOURISH behavior](docs/ASK_NOURISH.md)
-
-## Data notes
-
-- 514 district/city records are available in the map dataset.
-- 503 have valid 2025 inputs for the national rankings.
-- 11 Jambi records remain unranked because valid distinct 2025 PoU values are unavailable.
-- District geometry is joined by stable administrative code, with 514 of 514 features matched.
-- The included policy index is derived from three curated ASEAN policy documents.
-
-The scripts under `scripts/` document how generated data was produced, but rebuilding it requires source files from the separate analysis workspace and, for the policy index, `pdftotext`. Running the web prototype does not require those source files.
-
-## Ask NOURISH and optional model provider
-
-Ask NOURISH works without an API key: factual explanations are deterministic and policy passages are retrieved from the committed local index. The optional provider adapter reads the variables documented in `.env.example`; never commit real credentials.
-
-## Prototype limitations
-
-- Priority is descriptive, not a funding recommendation.
-- Policy passages support interpretation but do not determine rankings.
-- Risk signals are contextual associations, not causal findings or percentages.
-- No validated district-level cost or intervention-effect data is included.
-- Longitudinal displays omit 2024 because no validated observation is available.
-
-## License
-
-Project code is available under the [MIT License](LICENSE). Third-party datasets and source documents retain their own terms and should be checked before reuse beyond this prototype.
+Kode mengikuti MIT License. Data dan geometri pihak ketiga mengikuti ketentuan sumber masing-masing.

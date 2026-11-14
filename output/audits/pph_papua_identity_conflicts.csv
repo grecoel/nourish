@@ -1,0 +1,62 @@
+﻿year,source_code_original,source_kab_original,source_province_original,canonical_kab_code,canonical_kab_kota,canonical_province,pph,match_method,match_confidence,manual_note
+2021,9106,Kabupaten Biak Namfor,Papua,9106,BIAK NUMFOR,PAPUA,69.4,exact_code,high,
+2022,9106,Kabupaten Biak Namfor,Papua,9106,BIAK NUMFOR,PAPUA,57.8,exact_code,high,
+2023,9106,Kabupaten Biak Namfor,Papua,9106,BIAK NUMFOR,PAPUA,59.9,exact_code,high,
+2024,9301,Kabupaten Jayapura,Papua,9301,MERAUKE,PAPUA SELATAN,86.9,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9501,Kabupaten Kepulauan Yapen,Papua,9501,JAYAWIJAYA,PAPUA PEGUNUNGAN,84.3,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9103,Kabupaten Biak Numfor,Papua,9103,JAYAPURA,PAPUA,66.1,exact_code,high,
+2024,9401,Kabupaten Sarmi,Papua,9401,NABIRE,PAPUA TENGAH,78.7,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9105,Kabupaten Keerom,Papua,9105,KEPULAUAN YAPEN,PAPUA,78.1,exact_code,high,
+2024,9106,Kabupaten Waropen,Papua,9106,BIAK NUMFOR,PAPUA,60.5,exact_code,high,
+2024,9403,Kabupaten Supiori,Papua,9403,PANIAI,PAPUA TENGAH,74.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9402,Kabupaten Mamberamo Raya,Papua,9402,PUNCAK JAYA,PAPUA TENGAH,85.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9404,Kota Jayapura,Papua,9404,MIMIKA,PAPUA TENGAH,74.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9302,Kabupaten Merauke,Papua Selatan,9302,BOVEN DIGOEL,PAPUA SELATAN,88.2,exact_code,high,
+2024,9303,Kabupaten Boven Digoel,Papua Selatan,9303,MAPPI,PAPUA SELATAN,75.7,exact_code,high,
+2024,9304,Kabupaten Mappi,Papua Selatan,9304,ASMAT,PAPUA SELATAN,59.0,exact_code,high,
+2024,9503,Kabupaten Asmat,Papua Selatan,9503,YAHUKIMO,PAPUA PEGUNUNGAN,67.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9502,Kabupaten Mimika,Papua Tengah,9502,PEGUNUNGAN BINTANG,PAPUA PEGUNUNGAN,73.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9504,Kabupaten Dogiyai,Papua Tengah,9504,TOLIKARA,PAPUA PEGUNUNGAN,81.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9110,Kabupaten Deiyai,Papua Tengah,9110,SARMI,PAPUA,67.1,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9111,Kabupaten Nabire,Papua Tengah,9111,KEEROM,PAPUA,78.0,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9115,Kabupaten Paniai,Papua Tengah,9115,WAROPEN,PAPUA,63.9,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9119,Kabupaten Intan Jaya,Papua Tengah,9119,SUPIORI,PAPUA,66.9,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9120,Kabupaten Puncak,Papua Tengah,9120,MAMBERAMO RAYA,PAPUA,43.0,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9508,Kabupaten Puncak Jaya,Papua Tengah,9508,NDUGA,PAPUA PEGUNUNGAN,88.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9507,Kabupaten Nduga,Papua Pegunungan,9507,LANNY JAYA,PAPUA PEGUNUNGAN,51.7,exact_code,high,
+2024,9505,Kabupaten Jayawijaya,Papua Pegunungan,9505,MAMBERAMO TENGAH,PAPUA PEGUNUNGAN,66.9,exact_code,high,
+2024,9506,Kabupaten Lanny Jaya,Papua Pegunungan,9506,YALIMO,PAPUA PEGUNUNGAN,68.7,exact_code,high,
+2024,9405,Kabupaten Tolikara,Papua Pegunungan,9405,PUNCAK,PAPUA TENGAH,50.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9406,Kabupaten Mamberamo Tengah,Papua Pegunungan,9406,DOGIYAI,PAPUA TENGAH,53.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9407,Kabupaten Yalimo,Papua Pegunungan,9407,INTAN JAYA,PAPUA TENGAH,81.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9408,Kabupaten Yahukimo,Papua Pegunungan,9408,DEIYAI,PAPUA TENGAH,55.6,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2024,9171,Kabupaten Pegunungan Bintang,Papua Pegunungan,9171,JAYAPURA,PAPUA,72.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9301,Kabupaten Jayapura,Papua,9301,MERAUKE,PAPUA SELATAN,85.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9501,Kabupaten Kepulauan Yapen,Papua,9501,JAYAWIJAYA,PAPUA PEGUNUNGAN,81.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9103,Kabupaten Biak Numfor,Papua,9103,JAYAPURA,PAPUA,68.3,exact_code,high,
+2025,9401,Kabupaten Sarmi,Papua,9401,NABIRE,PAPUA TENGAH,80.9,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9105,Kabupaten Keerom,Papua,9105,KEPULAUAN YAPEN,PAPUA,82.8,exact_code,high,
+2025,9106,Kabupaten Waropen,Papua,9106,BIAK NUMFOR,PAPUA,60.4,exact_code,high,
+2025,9403,Kabupaten Supiori,Papua,9403,PANIAI,PAPUA TENGAH,76.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9402,Kabupaten Mamberamo Raya,Papua,9402,PUNCAK JAYA,PAPUA TENGAH,69.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9404,Kota Jayapura,Papua,9404,MIMIKA,PAPUA TENGAH,80.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9302,Kabupaten Merauke,Papua Selatan,9302,BOVEN DIGOEL,PAPUA SELATAN,96.4,exact_code,high,
+2025,9303,Kabupaten Boven Digoel,Papua Selatan,9303,MAPPI,PAPUA SELATAN,73.2,exact_code,high,
+2025,9304,Kabupaten Mappi,Papua Selatan,9304,ASMAT,PAPUA SELATAN,58.4,exact_code,high,
+2025,9503,Kabupaten Asmat,Papua Selatan,9503,YAHUKIMO,PAPUA PEGUNUNGAN,66.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9502,Kabupaten Mimika,Papua Tengah,9502,PEGUNUNGAN BINTANG,PAPUA PEGUNUNGAN,85.6,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9504,Kabupaten Dogiyai,Papua Tengah,9504,TOLIKARA,PAPUA PEGUNUNGAN,75.6,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9110,Kabupaten Deiyai,Papua Tengah,9110,SARMI,PAPUA,69.3,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9111,Kabupaten Nabire,Papua Tengah,9111,KEEROM,PAPUA,92.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9115,Kabupaten Paniai,Papua Tengah,9115,WAROPEN,PAPUA,70.0,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9119,Kabupaten Intan Jaya,Papua Tengah,9119,SUPIORI,PAPUA,72.3,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9120,Kabupaten Puncak,Papua Tengah,9120,MAMBERAMO RAYA,PAPUA,42.1,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9508,Kabupaten Puncak Jaya,Papua Tengah,9508,NDUGA,PAPUA PEGUNUNGAN,65.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9507,Kabupaten Nduga,Papua Pegunungan,9507,LANNY JAYA,PAPUA PEGUNUNGAN,50.7,exact_code,high,
+2025,9505,Kabupaten Jayawijaya,Papua Pegunungan,9505,MAMBERAMO TENGAH,PAPUA PEGUNUNGAN,73.2,exact_code,high,
+2025,9506,Kabupaten Lanny Jaya,Papua Pegunungan,9506,YALIMO,PAPUA PEGUNUNGAN,75.3,exact_code,high,
+2025,9405,Kabupaten Tolikara,Papua Pegunungan,9405,PUNCAK,PAPUA TENGAH,52.8,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9406,Kabupaten Mamberamo Tengah,Papua Pegunungan,9406,DOGIYAI,PAPUA TENGAH,48.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9407,Kabupaten Yalimo,Papua Pegunungan,9407,INTAN JAYA,PAPUA TENGAH,78.1,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9408,Kabupaten Yahukimo,Papua Pegunungan,9408,DEIYAI,PAPUA TENGAH,61.5,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
+2025,9171,Kabupaten Pegunungan Bintang,Papua Pegunungan,9171,JAYAPURA,PAPUA,54.2,exact_code,high,Source province label conflicts with code/name evidence; canonical geography follows official cross-source match.
